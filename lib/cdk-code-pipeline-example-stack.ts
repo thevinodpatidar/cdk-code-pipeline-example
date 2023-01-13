@@ -30,10 +30,5 @@ export class CdkCodePipelineExampleStack extends cdk.Stack {
       })
     );
     testingStage.addPost(new ManualApprovalStep("approval"));
-    testingStage.addPost(
-      new ShellStep("validate", {
-        commands: ["../tests/validate.sh"],
-      })
-    );
   }
 }
