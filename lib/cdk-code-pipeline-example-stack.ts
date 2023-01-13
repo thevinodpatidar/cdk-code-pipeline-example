@@ -2,9 +2,11 @@ import * as cdk from "aws-cdk-lib";
 import {
   CodePipeline,
   CodePipelineSource,
+  ManualApprovalStep,
   ShellStep,
 } from "aws-cdk-lib/pipelines";
 import { Construct } from "constructs";
+import { MyPipelineAppStage } from "./my-pipeline-app-stage";
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class CdkCodePipelineExampleStack extends cdk.Stack {
@@ -21,5 +23,17 @@ export class CdkCodePipelineExampleStack extends cdk.Stack {
         commands: ["npm ci", "npm run build", "npx cdk synth"],
       }),
     });
+
+    const testingStage = pipeline.addStage(
+      new MyPipelineAppStage(this, "test", {
+        env: { account: "163956409921", region: "us-east-1" },
+      })
+    );
+    testingStage.addPost(new ManualApprovalStep("approval"));
+    testingStage.addPost(
+      new ShellStep("validate", {
+        commands: ["../tests/validate.sh"],
+      })
+    );
   }
 }
